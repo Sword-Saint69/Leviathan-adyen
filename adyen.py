@@ -5,6 +5,22 @@ from typing import Optional
 from faker import Faker
 from user_agent import generate_user_agent
 
+from urllib.parse import quote
+
+def parse_proxy(proxy_str: str) -> Optional[str]:
+    if not proxy_str:
+        return None
+    clean_proxy = proxy_str.replace("http://", "").replace("https://", "")
+    parts = clean_proxy.split(':')
+    if len(parts) >= 4 and parts[1].isdigit():
+        host, port = parts[0], parts[1]
+        user = quote(parts[2], safe='')
+        pwd = quote(':'.join(parts[3:]), safe='')
+        return f"http://{user}:{pwd}@{host}:{port}"
+    elif len(parts) == 2 and parts[1].isdigit():
+        return f"http://{clean_proxy}"
+    return proxy_str
+
 fake = Faker()
 
 def generate_random_email():
@@ -32,13 +48,12 @@ def generate_random_email():
 def _run_adyen_auth_sync(cc: str, mes: str, ano: str, cvv: str, proxy_str: Optional[str] = None):
     session = requests.Session()
     if proxy_str:
-        proxy_url = proxy_str
-        if not proxy_url.startswith(('http://', 'https://')):
-            proxy_url = f"http://{proxy_url}"
-        session.proxies = {
-            'http': proxy_url,
-            'https': proxy_url
-        }
+        proxy_url = parse_proxy(proxy_str)
+        if proxy_url:
+            session.proxies = {
+                'http': proxy_url,
+                'https': proxy_url
+            }
         
     name = fake.name()
     email = generate_random_email()
@@ -78,8 +93,8 @@ def _run_adyen_auth_sync(cc: str, mes: str, ano: str, cvv: str, proxy_str: Optio
             json=json_data1,
             timeout=15
         )
-    except Exception as e:
-        print(f"[Adyen] Cometlytrack error: {e}")
+    except Exception:
+        pass
         
     headers2 = {
         'authority': 'api-order.payments.ai',

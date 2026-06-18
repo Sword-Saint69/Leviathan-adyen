@@ -6,3 +6,4 @@ faker
 user-agent
 python-dotenv
 aiohttp
+flask

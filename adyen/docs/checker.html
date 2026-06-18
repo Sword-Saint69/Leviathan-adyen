@@ -323,6 +323,10 @@
                         </tr>
                     </tbody>
                 </table>
+                <div style="display: flex; gap: 0.75rem; margin-top: 1.25rem; justify-content: flex-end;">
+                    <button class="btn btn-sec" style="border-color: var(--success); color: var(--success); width: auto; font-size: 0.8rem; padding: 0.5rem 1rem;" onclick="downloadCards('approved')">Download Approved</button>
+                    <button class="btn btn-sec" style="border-color: var(--error); color: var(--error); width: auto; font-size: 0.8rem; padding: 0.5rem 1rem;" onclick="downloadCards('declined')">Download Declined</button>
+                </div>
             </div>
         </section>
     </main>
@@ -332,6 +336,25 @@
         let approvedCount = 0;
         let declinedCount = 0;
         let checkedCount = 0;
+        let approvedList = [];
+        let declinedList = [];
+
+        function downloadCards(type) {
+            const list = type === 'approved' ? approvedList : declinedList;
+            if (list.length === 0) {
+                alert(`No ${type} cards to download yet.`);
+                return;
+            }
+            const blob = new Blob([list.join('\n')], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `leviathan_${type}_${new Date().toISOString().slice(0,10)}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
 
         async function checkKeyBalance() {
             const key = document.getElementById('checker-key').value.trim();
@@ -393,6 +416,8 @@
             approvedCount = 0;
             declinedCount = 0;
             checkedCount = 0;
+            approvedList = [];
+            declinedList = [];
 
             document.getElementById('stat-approved').textContent = '0';
             document.getElementById('stat-declined').textContent = '0';
@@ -435,10 +460,12 @@
                             let statusText = '';
                             if (data.Status) {
                                 approvedCount++;
+                                approvedList.push(card);
                                 document.getElementById('stat-approved').textContent = approvedCount;
                                 statusText = `<span style="color: var(--success); font-weight: bold;">APPROVED</span>`;
                             } else {
                                 declinedCount++;
+                                declinedList.push(card);
                                 document.getElementById('stat-declined').textContent = declinedCount;
                                 statusText = `<span style="color: var(--error);">DECLINED</span>`;
                             }

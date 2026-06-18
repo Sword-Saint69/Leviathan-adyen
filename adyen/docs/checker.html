@@ -304,6 +304,27 @@
                 </div>
             </div>
         </section>
+
+        <!-- Live Results Section -->
+        <section style="margin-top: 2rem;">
+            <h2 class="section-title">Live Results Console</h2>
+            <div class="card" style="padding: 1.5rem; overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left; font-family: var(--font-code); font-size: 0.9rem;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid var(--card-border); color: var(--text-muted); font-family: var(--font-main); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.05rem;">
+                            <th style="padding: 0.75rem 0.5rem; width: 45%;">Card Details</th>
+                            <th style="padding: 0.75rem 0.5rem; width: 20%;">Status</th>
+                            <th style="padding: 0.75rem 0.5rem; width: 35%;">Response Details</th>
+                        </tr>
+                    </thead>
+                    <tbody id="results-table-body">
+                        <tr id="empty-row" style="color: var(--text-muted);">
+                            <td colspan="3" style="padding: 1.5rem 0.5rem; text-align: center;">No cards checked yet. Start the checker to see results...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
     </main>
 
     <script>
@@ -376,6 +397,9 @@
             document.getElementById('stat-approved').textContent = '0';
             document.getElementById('stat-declined').textContent = '0';
             document.getElementById('stat-checked').textContent = '0';
+            
+            // Clear previous results in table
+            document.getElementById('results-table-body').innerHTML = '';
 
             let cardIndex = 0;
             let coinsDepleted = false;
@@ -399,18 +423,32 @@
 
                         const data = await response.json();
 
+                        const resultsBody = document.getElementById('results-table-body');
+                        const row = document.createElement('tr');
+                        row.style.borderBottom = '1px solid var(--card-border)';
+
                         if (response.ok) {
                             document.getElementById('stat-coins').textContent = data.coins;
                             checkedCount++;
                             document.getElementById('stat-checked').textContent = checkedCount;
 
+                            let statusText = '';
                             if (data.Status) {
                                 approvedCount++;
                                 document.getElementById('stat-approved').textContent = approvedCount;
+                                statusText = `<span style="color: var(--success); font-weight: bold;">APPROVED</span>`;
                             } else {
                                 declinedCount++;
                                 document.getElementById('stat-declined').textContent = declinedCount;
+                                statusText = `<span style="color: var(--error);">DECLINED</span>`;
                             }
+
+                            row.innerHTML = `
+                                <td style="padding: 0.75rem 0.5rem; color: var(--primary);">${card}</td>
+                                <td style="padding: 0.75rem 0.5rem;">${statusText}</td>
+                                <td style="padding: 0.75rem 0.5rem; color: var(--text-color);">${data.Response || 'Processed'}</td>
+                            `;
+                            resultsBody.insertBefore(row, resultsBody.firstChild);
 
                             if (data.coins <= 0) {
                                 coinsDepleted = true;
@@ -418,6 +456,13 @@
                                 break;
                             }
                         } else {
+                            row.innerHTML = `
+                                <td style="padding: 0.75rem 0.5rem; color: var(--primary);">${card}</td>
+                                <td style="padding: 0.75rem 0.5rem;"><span style="color: var(--error); font-weight: bold;">ERROR</span></td>
+                                <td style="padding: 0.75rem 0.5rem; color: var(--error);">${data.detail || 'Server error'}</td>
+                            `;
+                            resultsBody.insertBefore(row, resultsBody.firstChild);
+
                             if (response.status === 402 || response.status === 403) {
                                 coinsDepleted = true;
                                 alert(`Card checking stopped: ${data.detail || 'Access error'}`);
@@ -426,6 +471,15 @@
                         }
                     } catch (err) {
                         console.error(err);
+                        const resultsBody = document.getElementById('results-table-body');
+                        const row = document.createElement('tr');
+                        row.style.borderBottom = '1px solid var(--card-border)';
+                        row.innerHTML = `
+                            <td style="padding: 0.75rem 0.5rem; color: var(--primary);">${card}</td>
+                            <td style="padding: 0.75rem 0.5rem;"><span style="color: var(--error); font-weight: bold;">FAILED</span></td>
+                            <td style="padding: 0.75rem 0.5rem; color: var(--error);">${err.message || 'Request error'}</td>
+                        `;
+                        resultsBody.insertBefore(row, resultsBody.firstChild);
                     }
                 }
             }

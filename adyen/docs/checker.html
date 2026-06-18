@@ -292,11 +292,6 @@
                     <textarea id="proxy-input" placeholder="host:port&#10;user:pass@host:port"></textarea>
                 </div>
 
-                <div class="form-group">
-                    <label for="threads-input">Threads (Concurrent Workers)</label>
-                    <input type="number" id="threads-input" value="20" min="1" max="100" placeholder="Number of threads">
-                </div>
-
                 <div class="input-row">
                     <button class="btn" id="start-btn" onclick="startChecker()">Start Checker</button>
                     <button class="btn btn-sec" id="stop-btn" onclick="stopChecker()" disabled>Stop</button>
@@ -352,7 +347,7 @@
             const key = document.getElementById('checker-key').value.trim();
             const cardsText = document.getElementById('cc-input').value.trim();
             const proxyText = document.getElementById('proxy-input').value.trim();
-            const threadsCount = parseInt(document.getElementById('threads-input').value) || 20;
+            const threadsCount = 20;
 
             if (!key) {
                 alert('API Key is required.');

@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LEVIATHAN // Adyen Auth Checker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b0c10;
+            --card-bg: #11141a;
+            --card-border: #1f2833;
+            --primary-glow: rgba(69, 243, 255, 0.3);
+            --primary: #66fcf1;
+            --accent: #45f3ff;
+            --text-color: #f5f7fa;
+            --text-muted: #8b949e;
+            --success: #00ffcc;
+            --error: #ff3366;
+            --gold: #ffd166;
+            --font-main: 'Space Grotesk', sans-serif;
+            --font-display: 'Cinzel', serif;
+            --font-code: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 5% 15%, rgba(102, 252, 241, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 95% 85%, rgba(69, 243, 255, 0.08) 0%, transparent 45%);
+            background-attachment: fixed;
+        }
+
+        header {
+            padding: 3rem 2rem 2rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .brand {
+            font-family: var(--font-display);
+            font-size: 3.5rem;
+            font-weight: 900;
+            letter-spacing: 0.8rem;
+            background: linear-gradient(180deg, #ffffff 40%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 50px var(--primary-glow);
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            letter-spacing: 0.15rem;
+            font-weight: 300;
+            text-transform: uppercase;
+        }
+
+        main {
+            max-width: 800px;
+            margin: 0 auto 6rem auto;
+            padding: 0 2rem;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            letter-spacing: 0.05rem;
+            text-transform: uppercase;
+        }
+
+        .section-title::before {
+            content: '';
+            display: block;
+            width: 4px;
+            height: 1.3rem;
+            background-color: var(--primary);
+            border-radius: 2px;
+            box-shadow: 0 0 10px var(--primary);
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+            margin-bottom: 2rem;
+            height: fit-content;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-box {
+            background-color: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-family: var(--font-code);
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 0.25rem;
+        }
+
+        .stat-value.coins { color: var(--gold); }
+        .stat-value.approved { color: var(--success); }
+        .stat-value.declined { color: var(--error); }
+        .stat-value.checked { color: var(--accent); }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.05rem;
+            text-transform: uppercase;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 0.8rem 1rem;
+            color: var(--text-color);
+            font-family: var(--font-code);
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 12px rgba(102, 252, 241, 0.15);
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary) 0%, #00b4d8 100%);
+            color: #0b0c10;
+            border: none;
+            border-radius: 8px;
+            padding: 0.9rem;
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 0.08rem;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: transform 0.1s ease, filter 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 252, 241, 0.2);
+        }
+
+        .btn:hover {
+            filter: brightness(1.1);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn.btn-sec {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-color);
+            border: 1px solid var(--card-border);
+            box-shadow: none;
+        }
+
+        .btn.btn-sec:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--primary);
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="brand">Leviathan</div>
+        <div class="subtitle">Adyen Checker Dashboard</div>
+    </header>
+
+    <main>
+        <!-- Checker UI Section -->
+        <section>
+            <h2 class="section-title">Auth Checker Console</h2>
+            <div class="card">
+                <!-- Counters -->
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-label">Coins</div>
+                        <div id="stat-coins" class="stat-value coins">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Approved</div>
+                        <div id="stat-approved" class="stat-value success">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Declined</div>
+                        <div id="stat-declined" class="stat-value error">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Checked</div>
+                        <div id="stat-checked" class="stat-value checked">0</div>
+                    </div>
+                </div>
+
+                <!-- Checker Inputs -->
+                <div class="form-group">
+                    <label for="checker-key">API Key</label>
+                    <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+                        <input type="text" id="checker-key" placeholder="Enter key (e.g. LEVIATHAN-XXXXX) to load coins">
+                        <button class="btn" style="width: auto; padding: 0 1.5rem; white-space: nowrap;" onclick="checkKeyBalance()">Check Key</button>
+                    </div>
+                    <div id="key-details-display" style="font-size: 0.85rem; color: var(--text-muted); display: none; margin-top: 0.5rem; font-family: var(--font-code);">
+                        Plan: <span id="key-plan-val" style="color: var(--accent); font-weight: bold;">-</span> | Expiry: <span id="key-expiry-val" style="color: var(--success); font-weight: bold;">-</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="cc-input">Cards List (CC|MM|YYYY|CVV - one per line)</label>
+                    <textarea id="cc-input" placeholder="5203539133652025|10|2026|365&#10;4802138766607576|12|2029|499"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="proxy-input">Proxies (Mandatory - host:port or user:pass@host:port - one per line)</label>
+                    <textarea id="proxy-input" placeholder="host:port&#10;user:pass@host:port"></textarea>
+                </div>
+
+                <div class="input-row">
+                    <button class="btn" id="start-btn" onclick="startChecker()">Start Checker</button>
+                    <button class="btn btn-sec" id="stop-btn" onclick="stopChecker()" disabled>Stop</button>
+                </div>
+                
+                <div class="form-group" style="margin-top: 1rem;">
+                    <a href="https://t.me/commndo69" target="_blank" style="text-decoration: none;">
+                        <button class="btn btn-sec" style="border-color: var(--gold); color: var(--gold);" type="button">Buy Coins (Contact @commndo69)</button>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        let running = false;
+        let approvedCount = 0;
+        let declinedCount = 0;
+        let checkedCount = 0;
+
+        async function checkKeyBalance() {
+            const key = document.getElementById('checker-key').value.trim();
+            if (!key) {
+                alert('Please enter an API Key first.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/keys/balance?key=${encodeURIComponent(key)}`);
+                const data = await response.json();
+                if (response.ok) {
+                    document.getElementById('stat-coins').textContent = data.coins;
+                    document.getElementById('key-plan-val').textContent = data.plan;
+                    document.getElementById('key-expiry-val').textContent = data.expiry;
+                    document.getElementById('key-details-display').style.display = 'block';
+                } else {
+                    document.getElementById('stat-coins').textContent = '0';
+                    document.getElementById('key-details-display').style.display = 'none';
+                    alert(`Error loading key: ${data.detail || 'Invalid key'}`);
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function stopChecker() {
+            running = false;
+            document.getElementById('start-btn').disabled = false;
+            document.getElementById('stop-btn').disabled = true;
+        }
+
+        async function startChecker() {
+            const key = document.getElementById('checker-key').value.trim();
+            const cardsText = document.getElementById('cc-input').value.trim();
+            const proxyText = document.getElementById('proxy-input').value.trim();
+
+            if (!key) {
+                alert('API Key is required.');
+                return;
+            }
+            if (!cardsText) {
+                alert('Card list is empty.');
+                return;
+            }
+            if (!proxyText) {
+                alert('Proxy list is required.');
+                return;
+            }
+
+            const cards = cardsText.split('\n').map(c => c.trim()).filter(c => c);
+            const proxies = proxyText.split('\n').map(p => p.trim()).filter(p => p);
+
+            running = true;
+            document.getElementById('start-btn').disabled = true;
+            document.getElementById('stop-btn').disabled = false;
+
+            approvedCount = 0;
+            declinedCount = 0;
+            checkedCount = 0;
+
+            document.getElementById('stat-approved').textContent = '0';
+            document.getElementById('stat-declined').textContent = '0';
+            document.getElementById('stat-checked').textContent = '0';
+
+            for (let i = 0; i < cards.length; i++) {
+                if (!running) break;
+
+                const card = cards[i];
+                const proxy = proxies.length > 0 ? proxies[i % proxies.length] : null;
+
+                try {
+                    const response = await fetch('/adyen', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ cc: card, proxy: proxy || null, key: key })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        document.getElementById('stat-coins').textContent = data.coins;
+                        checkedCount++;
+                        document.getElementById('stat-checked').textContent = checkedCount;
+
+                        if (data.Status) {
+                            approvedCount++;
+                            document.getElementById('stat-approved').textContent = approvedCount;
+                        } else {
+                            declinedCount++;
+                            document.getElementById('stat-declined').textContent = declinedCount;
+                        }
+
+                        if (data.coins <= 0) {
+                            alert('No coins remaining.');
+                            break;
+                        }
+                    } else {
+                        alert(`Card ${card} failed: ${data.detail || 'Server error'}`);
+                        if (response.status === 402 || response.status === 403) {
+                            break;
+                        }
+                    }
+                } catch (err) {
+                    console.error(err);
+                }
+
+                await new Promise(r => setTimeout(r, 1500));
+            }
+
+            running = false;
+            document.getElementById('start-btn').disabled = false;
+            document.getElementById('stop-btn').disabled = true;
+        }
+    </script>
+</body>
+</html>

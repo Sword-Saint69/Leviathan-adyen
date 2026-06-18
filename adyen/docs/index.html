@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LEVIATHAN // Adyen Auth API Docs</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b0c10;
+            --card-bg: #11141a;
+            --card-border: #1f2833;
+            --primary-glow: rgba(69, 243, 255, 0.3);
+            --primary: #66fcf1;
+            --accent: #45f3ff;
+            --text-color: #f5f7fa;
+            --text-muted: #8b949e;
+            --success: #00ffcc;
+            --error: #ff3366;
+            --font-main: 'Space Grotesk', sans-serif;
+            --font-display: 'Cinzel', serif;
+            --font-code: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 5% 15%, rgba(102, 252, 241, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 95% 85%, rgba(69, 243, 255, 0.08) 0%, transparent 45%);
+            background-attachment: fixed;
+        }
+
+        header {
+            padding: 4rem 2rem 3rem 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .brand {
+            font-family: var(--font-display);
+            font-size: 4rem;
+            font-weight: 900;
+            letter-spacing: 0.8rem;
+            background: linear-gradient(180deg, #ffffff 40%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 50px var(--primary-glow);
+            text-transform: uppercase;
+            margin-bottom: 0.75rem;
+        }
+
+        .subtitle {
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            letter-spacing: 0.15rem;
+            font-weight: 300;
+            text-transform: uppercase;
+        }
+
+        main {
+            max-width: 900px;
+            margin: 0 auto 6rem auto;
+            padding: 0 2rem;
+        }
+
+        .section-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            letter-spacing: 0.05rem;
+            text-transform: uppercase;
+        }
+
+        .section-title::before {
+            content: '';
+            display: block;
+            width: 4px;
+            height: 1.3rem;
+            background-color: var(--primary);
+            border-radius: 2px;
+            box-shadow: 0 0 10px var(--primary);
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 2.5rem;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+            margin-bottom: 2.5rem;
+        }
+
+        .docs-block {
+            margin-bottom: 2.5rem;
+        }
+
+        .docs-block:last-child {
+            margin-bottom: 0;
+        }
+
+        .docs-block h3 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #e6edf3;
+            letter-spacing: 0.03rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.3rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.08rem;
+            margin-right: 0.75rem;
+        }
+
+        .badge-get {
+            background-color: rgba(102, 252, 241, 0.1);
+            color: var(--primary);
+            border: 1px solid rgba(102, 252, 241, 0.2);
+        }
+
+        .badge-post {
+            background-color: rgba(69, 243, 255, 0.1);
+            color: var(--accent);
+            border: 1px solid rgba(69, 243, 255, 0.2);
+        }
+
+        .endpoint-url {
+            font-family: var(--font-code);
+            font-size: 0.95rem;
+            background-color: rgba(255, 255, 255, 0.02);
+            padding: 0.4rem 0.75rem;
+            border-radius: 4px;
+            border: 1px solid var(--card-border);
+            color: #c9d1d9;
+        }
+
+        pre {
+            background-color: #06070a;
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            font-family: var(--font-code);
+            font-size: 0.88rem;
+            color: #c9d1d9;
+            margin-top: 1rem;
+            line-height: 1.6;
+        }
+
+        .json-key { color: var(--primary); }
+        .json-string { color: var(--success); }
+        .json-bool { color: #ff5c8a; }
+        .json-num { color: #ffcc00; }
+
+        .dashboard-link {
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .dashboard-link a {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .dashboard-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="brand">Leviathan</div>
+        <div class="subtitle">Adyen Auth Api</div>
+    </header>
+
+    <main>
+        <h2 class="section-title">Developer Integration Docs</h2>
+        <div class="card">
+            <!-- GET Block -->
+            <div class="docs-block">
+                <h3>HTTP GET Request</h3>
+                <div>
+                    <span class="badge badge-get">GET</span>
+                    <span class="endpoint-url">/adyen</span>
+                </div>
+                <pre>
+curl "http://localhost:5000/adyen?cc=5203539133652025|10|2026|365&key=API_KEY&proxy=REQUIRED_PROXY"</pre>
+            </div>
+
+            <!-- POST Block -->
+            <div class="docs-block">
+                <h3>HTTP POST Request</h3>
+                <div>
+                    <span class="badge badge-post">POST</span>
+                    <span class="endpoint-url">/adyen</span>
+                </div>
+                <pre>
+curl -X POST "http://localhost:5000/adyen" \
+  -H "Content-Type: application/json" \
+  -d '{
+    <span class="json-key">"cc"</span>: <span class="json-string">"5203539133652025|10|2026|365"</span>,
+    <span class="json-key">"key"</span>: <span class="json-string">"API_KEY"</span>,
+    <span class="json-key">"proxy"</span>: <span class="json-string">"REQUIRED_PROXY_STRING"</span>
+  }'</pre>
+            </div>
+
+            <!-- Response Block -->
+            <div class="docs-block">
+                <h3>JSON Response Schema</h3>
+                <pre>{
+  <span class="json-key">"Gateway"</span>: <span class="json-string">"Adyen Leviathan"</span>,
+  <span class="json-key">"Type"</span>: <span class="json-string">"auth"</span>,
+  <span class="json-key">"Response"</span>: <span class="json-string">"CARD_APPROVED"</span>,
+  <span class="json-key">"Status"</span>: <span class="json-bool">true</span>,
+  <span class="json-key">"cc"</span>: <span class="json-string">"5203539133652025|10|2026|365"</span>,
+  <span class="json-key">"dev"</span>: <span class="json-string">"Commndo69"</span>,
+  <span class="json-key">"coins"</span>: <span class="json-num">99</span>
+}</pre>
+            </div>
+
+            <div class="dashboard-link">
+                <a href="/adyen/checker">Go to Checker Dashboard UI &rarr;</a>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

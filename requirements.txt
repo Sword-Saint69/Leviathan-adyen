@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+requests
+pydantic
+faker
+user-agent
+python-dotenv
+aiohttp

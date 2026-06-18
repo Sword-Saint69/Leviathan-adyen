@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LEVIATHAN // Admin Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b0c10;
+            --card-bg: #11141a;
+            --card-border: #1f2833;
+            --primary-glow: rgba(69, 243, 255, 0.3);
+            --primary: #66fcf1;
+            --accent: #45f3ff;
+            --text-color: #f5f7fa;
+            --text-muted: #8b949e;
+            --success: #00ffcc;
+            --error: #ff3366;
+            --gold: #ffd166;
+            --font-main: 'Space Grotesk', sans-serif;
+            --font-display: 'Cinzel', serif;
+            --font-code: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 5% 15%, rgba(102, 252, 241, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 95% 85%, rgba(69, 243, 255, 0.08) 0%, transparent 45%);
+            background-attachment: fixed;
+        }
+
+        header {
+            padding: 3rem 2rem 2rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .brand {
+            font-family: var(--font-display);
+            font-size: 3.5rem;
+            font-weight: 900;
+            letter-spacing: 0.8rem;
+            background: linear-gradient(180deg, #ffffff 40%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 50px var(--primary-glow);
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            letter-spacing: 0.15rem;
+            font-weight: 300;
+            text-transform: uppercase;
+        }
+
+        main {
+            max-width: 1000px;
+            margin: 0 auto 6rem auto;
+            padding: 0 2rem;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            letter-spacing: 0.05rem;
+            text-transform: uppercase;
+        }
+
+        .section-title::before {
+            content: '';
+            display: block;
+            width: 4px;
+            height: 1.3rem;
+            background-color: var(--primary);
+            border-radius: 2px;
+            box-shadow: 0 0 10px var(--primary);
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.05rem;
+            text-transform: uppercase;
+        }
+
+        input, select {
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 0.8rem 1rem;
+            color: var(--text-color);
+            font-family: var(--font-code);
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 12px rgba(102, 252, 241, 0.15);
+        }
+
+        .btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary) 0%, #00b4d8 100%);
+            color: #0b0c10;
+            border: none;
+            border-radius: 8px;
+            padding: 0.9rem;
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 0.08rem;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: transform 0.1s ease, filter 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 252, 241, 0.2);
+        }
+
+        .btn:hover {
+            filter: brightness(1.1);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .key-list {
+            margin-top: 1.5rem;
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .key-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1.2fr 0.8fr;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--card-border);
+            font-family: var(--font-code);
+            font-size: 0.9rem;
+            align-items: center;
+        }
+
+        .key-row:last-child {
+            border-bottom: none;
+        }
+
+        .key-row.header {
+            font-weight: 700;
+            background-color: rgba(255, 255, 255, 0.02);
+            color: var(--text-muted);
+            font-family: var(--font-main);
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.05rem;
+        }
+
+        .key-cell.key-val {
+            color: var(--primary);
+        }
+
+        .key-cell.coins-val {
+            color: var(--gold);
+        }
+
+        .key-cell.plan-val {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .key-box-display {
+            background-color: rgba(255, 255, 255, 0.01);
+            border: 1px dashed var(--card-border);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1.5rem;
+            font-family: var(--font-code);
+            font-size: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--primary);
+        }
+
+        .copy-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            border: 1px solid var(--card-border);
+        }
+
+        .copy-btn:hover {
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="brand">Leviathan</div>
+        <div class="subtitle">License Generator Console</div>
+    </header>
+
+    <main>
+        <section>
+            <h2 class="section-title">Key Management</h2>
+            <div class="card">
+                <div class="form-group">
+                    <label for="gen-plan">Select Plan</label>
+                    <select id="gen-plan">
+                        <option value="Trial">Trial Plan (10 Coins)</option>
+                        <option value="Starter">Starter Plan (100 Coins)</option>
+                        <option value="Standard" selected>Standard Plan (500 Coins)</option>
+                        <option value="Premium">Premium Plan (2000 Coins)</option>
+                        <option value="Ultimate">Ultimate Plan (10000 Coins)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="custom-coins">Custom Coins (Overrides Plan)</label>
+                    <input type="number" id="custom-coins" placeholder="Optional numeric value">
+                </div>
+                <div class="form-group">
+                    <label for="custom-expiry">Custom Expiry (Optional - e.g., 2026-12-31 or Lifetime)</label>
+                    <input type="text" id="custom-expiry" placeholder="Optional expiry value (default: 30 days)">
+                </div>
+                <div class="form-group">
+                    <label for="gen-count">Quantity / Count</label>
+                    <input type="number" id="gen-count" value="1" min="1" placeholder="Number of keys to generate">
+                </div>
+                <button class="btn" onclick="generateApiKey()">Generate API License</button>
+
+                <div id="generated-key-container" style="display: none; margin-top: 1.5rem;">
+                    <label>Generated Key(s)</label>
+                    <textarea id="display-keys" style="width: 100%; height: 100px; background-color: rgba(0, 0, 0, 0.2); border: 1px solid var(--card-border); border-radius: 8px; padding: 0.8rem 1rem; color: var(--primary); font-family: var(--font-code); font-size: 0.95rem; outline: none; margin-bottom: 0.5rem; resize: vertical;" readonly></textarea>
+                    <button class="copy-btn" id="bulk-copy-btn" onclick="copyKeys()">Copy Keys</button>
+                </div>
+
+                <div class="form-group" style="margin-top: 1.5rem;">
+                    <a href="https://t.me/commndo69" target="_blank" style="text-decoration: none;">
+                        <button class="btn btn-sec" style="border-color: var(--gold); color: var(--gold);" type="button">Buy Coins (Contact @commndo69)</button>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2 class="section-title">Active Licenses</h2>
+            <div class="card">
+                <div class="key-list" id="active-keys-list">
+                    <div class="key-row header">
+                        <div class="key-cell">License Key</div>
+                        <div class="key-cell">Plan</div>
+                        <div class="key-cell">Coins</div>
+                        <div class="key-cell">Expiry</div>
+                        <div class="key-cell" style="text-align: right;">Action</div>
+                    </div>
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
+            <div class="nav-links">
+                <a href="/adyen/checker">Checker Dashboard</a>
+                <a href="/adyen/docs">Developer API Docs</a>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', loadActiveKeys);
+
+        async function loadActiveKeys() {
+            try {
+                const response = await fetch('/api/keys/list');
+                const data = await response.json();
+                const container = document.getElementById('active-keys-list');
+                
+                // Clear rows except header
+                container.innerHTML = `
+                    <div class="key-row header">
+                        <div class="key-cell">License Key</div>
+                        <div class="key-cell">Plan</div>
+                        <div class="key-cell">Coins</div>
+                        <div class="key-cell">Expiry</div>
+                        <div class="key-cell" style="text-align: right;">Action</div>
+                    </div>
+                `;
+
+                for (const [key, details] of Object.entries(data)) {
+                    const row = document.createElement('div');
+                    row.className = 'key-row';
+                    row.innerHTML = `
+                        <div class="key-cell key-val">${key}</div>
+                        <div class="key-cell plan-val">${details.plan}</div>
+                        <div class="key-cell coins-val">${details.coins}</div>
+                        <div class="key-cell expiry-val" style="color: var(--success);">${details.expiry || 'Lifetime'}</div>
+                        <div class="key-cell" style="text-align: right;">
+                            <button class="copy-btn" style="border-color: var(--error); color: var(--error);" onclick="deleteApiKey('${key}')">Delete</button>
+                        </div>
+                    `;
+                    container.appendChild(row);
+                }
+            } catch (err) {
+                console.error('Failed to load keys', err);
+            }
+        }
+
+        async function deleteApiKey(key) {
+            if (!confirm(`Are you sure you want to delete license key: ${key}?`)) return;
+            try {
+                const response = await fetch(`/api/keys/delete?key=${encodeURIComponent(key)}`, {
+                    method: 'DELETE'
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    loadActiveKeys();
+                } else {
+                    alert(`Failed to delete: ${data.detail || 'Server error'}`);
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function generateApiKey() {
+            const plan = document.getElementById('gen-plan').value;
+            const customCoinsVal = document.getElementById('custom-coins').value.trim();
+            const customExpiryVal = document.getElementById('custom-expiry').value.trim();
+            const countVal = parseInt(document.getElementById('gen-count').value) || 1;
+            
+            let url = '';
+            if (countVal > 1) {
+                url = `/api/keys/generate/bulk?plan=${encodeURIComponent(plan)}&count=${countVal}`;
+            } else {
+                url = `/api/keys/generate?plan=${encodeURIComponent(plan)}`;
+            }
+
+            if (customCoinsVal) {
+                url += `&custom_coins=${customCoinsVal}`;
+            }
+            if (customExpiryVal) {
+                url += `&custom_expiry=${encodeURIComponent(customExpiryVal)}`;
+            }
+
+            try {
+                const response = await fetch(url, { method: 'POST' });
+                const data = await response.json();
+                if (response.ok) {
+                    const keysTextArea = document.getElementById('display-keys');
+                    if (countVal > 1) {
+                        keysTextArea.value = data.keys.join('\n');
+                    } else {
+                        keysTextArea.value = data.key;
+                    }
+                    document.getElementById('generated-key-container').style.display = 'block';
+                    loadActiveKeys();
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function copyKeys() {
+            const keyText = document.getElementById('display-keys').value;
+            navigator.clipboard.writeText(keyText).then(() => {
+                const btn = document.getElementById('bulk-copy-btn');
+                btn.textContent = 'Copied!';
+                setTimeout(() => btn.textContent = 'Copy Keys', 1500);
+            });
+        }
+    </script>
+</body>
+</html>

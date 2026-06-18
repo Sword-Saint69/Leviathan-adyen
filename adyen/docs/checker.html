@@ -292,6 +292,11 @@
                     <textarea id="proxy-input" placeholder="host:port&#10;user:pass@host:port"></textarea>
                 </div>
 
+                <div class="form-group">
+                    <label for="threads-input">Threads (Concurrent Workers)</label>
+                    <input type="number" id="threads-input" value="20" min="1" max="100" placeholder="Number of threads">
+                </div>
+
                 <div class="input-row">
                     <button class="btn" id="start-btn" onclick="startChecker()">Start Checker</button>
                     <button class="btn btn-sec" id="stop-btn" onclick="stopChecker()" disabled>Stop</button>
@@ -347,6 +352,7 @@
             const key = document.getElementById('checker-key').value.trim();
             const cardsText = document.getElementById('cc-input').value.trim();
             const proxyText = document.getElementById('proxy-input').value.trim();
+            const threadsCount = parseInt(document.getElementById('threads-input').value) || 20;
 
             if (!key) {
                 alert('API Key is required.');
@@ -376,52 +382,67 @@
             document.getElementById('stat-declined').textContent = '0';
             document.getElementById('stat-checked').textContent = '0';
 
-            for (let i = 0; i < cards.length; i++) {
-                if (!running) break;
+            let cardIndex = 0;
+            let coinsDepleted = false;
 
-                const card = cards[i];
-                const proxy = proxies.length > 0 ? proxies[i % proxies.length] : null;
+            async function worker() {
+                while (running && cardIndex < cards.length && !coinsDepleted) {
+                    const idx = cardIndex++;
+                    if (idx >= cards.length) break;
 
-                try {
-                    const response = await fetch('/adyen', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ cc: card, proxy: proxy || null, key: key })
-                    });
+                    const card = cards[idx];
+                    const proxy = proxies.length > 0 ? proxies[idx % proxies.length] : null;
 
-                    const data = await response.json();
+                    try {
+                        const response = await fetch('/adyen', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ cc: card, proxy: proxy || null, key: key })
+                        });
 
-                    if (response.ok) {
-                        document.getElementById('stat-coins').textContent = data.coins;
-                        checkedCount++;
-                        document.getElementById('stat-checked').textContent = checkedCount;
+                        const data = await response.json();
 
-                        if (data.Status) {
-                            approvedCount++;
-                            document.getElementById('stat-approved').textContent = approvedCount;
+                        if (response.ok) {
+                            document.getElementById('stat-coins').textContent = data.coins;
+                            checkedCount++;
+                            document.getElementById('stat-checked').textContent = checkedCount;
+
+                            if (data.Status) {
+                                approvedCount++;
+                                document.getElementById('stat-approved').textContent = approvedCount;
+                            } else {
+                                declinedCount++;
+                                document.getElementById('stat-declined').textContent = declinedCount;
+                            }
+
+                            if (data.coins <= 0) {
+                                coinsDepleted = true;
+                                alert('No coins remaining.');
+                                break;
+                            }
                         } else {
-                            declinedCount++;
-                            document.getElementById('stat-declined').textContent = declinedCount;
+                            if (response.status === 402 || response.status === 403) {
+                                coinsDepleted = true;
+                                alert(`Card checking stopped: ${data.detail || 'Access error'}`);
+                                break;
+                            }
                         }
-
-                        if (data.coins <= 0) {
-                            alert('No coins remaining.');
-                            break;
-                        }
-                    } else {
-                        alert(`Card ${card} failed: ${data.detail || 'Server error'}`);
-                        if (response.status === 402 || response.status === 403) {
-                            break;
-                        }
+                    } catch (err) {
+                        console.error(err);
                     }
-                } catch (err) {
-                    console.error(err);
                 }
-
-                await new Promise(r => setTimeout(r, 1500));
             }
+
+            // Start worker pool (parallel threads)
+            const pool = [];
+            const activeThreads = Math.min(threadsCount, cards.length);
+            for (let i = 0; i < activeThreads; i++) {
+                pool.push(worker());
+            }
+
+            await Promise.all(pool);
 
             running = false;
             document.getElementById('start-btn').disabled = false;

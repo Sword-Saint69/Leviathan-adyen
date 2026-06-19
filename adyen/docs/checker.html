@@ -257,7 +257,7 @@
                         <div id="stat-coins" class="stat-value coins">0</div>
                     </div>
                     <div class="stat-box">
-                        <div class="stat-label">Approved</div>
+                        <div id="approved-label" class="stat-label">Approved</div>
                         <div id="stat-approved" class="stat-value success">0</div>
                     </div>
                     <div class="stat-box">
@@ -284,9 +284,10 @@
 
                 <div class="form-group">
                     <label for="gateway-select">Select Gateway</label>
-                    <select id="gateway-select">
+                    <select id="gateway-select" onchange="onGatewayChange()">
                         <option value="adyen" selected>Adyen Leviathan</option>
                         <option value="stripe">Stripe Setup</option>
+                        <option value="stripe1">Stripe 1.00 USD</option>
                     </select>
                 </div>
 
@@ -332,7 +333,7 @@
                     </tbody>
                 </table>
                 <div style="display: flex; gap: 0.75rem; margin-top: 1.25rem; justify-content: flex-end;">
-                    <button class="btn btn-sec" style="border-color: var(--success); color: var(--success); width: auto; font-size: 0.8rem; padding: 0.5rem 1rem;" onclick="downloadCards('approved')">Download Approved</button>
+                    <button id="btn-download-approved" class="btn btn-sec" style="border-color: var(--success); color: var(--success); width: auto; font-size: 0.8rem; padding: 0.5rem 1rem;" onclick="downloadCards('approved')">Download Approved</button>
                     <button class="btn btn-sec" style="border-color: var(--error); color: var(--error); width: auto; font-size: 0.8rem; padding: 0.5rem 1rem;" onclick="downloadCards('declined')">Download Declined</button>
                 </div>
             </div>
@@ -362,6 +363,19 @@
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
+        }
+
+        function onGatewayChange() {
+            const gateway = document.getElementById('gateway-select').value;
+            const label = document.getElementById('approved-label');
+            const btn = document.getElementById('btn-download-approved');
+            if (gateway === 'stripe1') {
+                label.textContent = 'Charged';
+                btn.textContent = 'Download Charged';
+            } else {
+                label.textContent = 'Approved';
+                btn.textContent = 'Download Approved';
+            }
         }
 
         async function checkKeyBalance() {
@@ -448,7 +462,7 @@
                     const proxy = proxies.length > 0 ? proxies[idx % proxies.length] : null;
 
                     try {
-                        const endpoint = gateway === 'stripe' ? '/stripe' : '/adyen';
+                        const endpoint = gateway === 'stripe1' ? '/stripe1' : (gateway === 'stripe' ? '/stripe' : '/adyen');
                         const response = await fetch(endpoint, {
                             method: 'POST',
                             headers: {
@@ -473,7 +487,7 @@
                                 approvedCount++;
                                 approvedList.push(card);
                                 document.getElementById('stat-approved').textContent = approvedCount;
-                                statusText = `<span style="color: var(--success); font-weight: bold;">APPROVED</span>`;
+                                statusText = gateway === 'stripe1' ? `<span style="color: var(--success); font-weight: bold;">CHARGED</span>` : `<span style="color: var(--success); font-weight: bold;">APPROVED</span>`;
                             } else {
                                 declinedCount++;
                                 declinedList.push(card);

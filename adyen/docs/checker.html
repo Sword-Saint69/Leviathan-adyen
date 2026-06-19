@@ -283,6 +283,14 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="gateway-select">Select Gateway</label>
+                    <select id="gateway-select">
+                        <option value="adyen" selected>Adyen Leviathan</option>
+                        <option value="stripe">Stripe Setup</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
                     <label for="cc-input">Cards List (CC|MM|YYYY|CVV - one per line)</label>
                     <textarea id="cc-input" placeholder="5203539133652025|10|2026|365&#10;4802138766607576|12|2029|499"></textarea>
                 </div>
@@ -409,6 +417,8 @@
             const cards = cardsText.split('\n').map(c => c.trim()).filter(c => c);
             const proxies = proxyText.split('\n').map(p => p.trim()).filter(p => p);
 
+            const gateway = document.getElementById('gateway-select').value;
+
             running = true;
             document.getElementById('start-btn').disabled = true;
             document.getElementById('stop-btn').disabled = false;
@@ -438,7 +448,8 @@
                     const proxy = proxies.length > 0 ? proxies[idx % proxies.length] : null;
 
                     try {
-                        const response = await fetch('/adyen', {
+                        const endpoint = gateway === 'stripe' ? '/stripe' : '/adyen';
+                        const response = await fetch(endpoint, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'

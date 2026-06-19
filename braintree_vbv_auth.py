@@ -79,7 +79,7 @@ def extract_auth(session, u):
             pass
     return None, None
 
-def tokenize_card(session, auth, cc, month, year, u):
+def tokenize_card(session, auth, cc, month, year, cvv, u):
     year_str = str(year)
     if len(year_str) == 2: year_str = "20" + year_str
     month_str = str(month).zfill(2)
@@ -87,7 +87,7 @@ def tokenize_card(session, auth, cc, month, year, u):
     query = """mutation TokenizeCreditCard($input: TokenizeCreditCardInput!) {
         tokenizeCreditCard(input: $input) { token creditCard { bin brandCode last4 } }
     }"""
-    variables = {"input": {"creditCard": {"number": cc, "expirationMonth": month_str, "expirationYear": year_str, "cvv": str(cc)}, "options": {"validate": False}}}
+    variables = {"input": {"creditCard": {"number": cc, "expirationMonth": month_str, "expirationYear": year_str, "cvv": str(cvv)}, "options": {"validate": False}}}
     h = {
         "User-Agent": u,
         "Authorization": f"Bearer {auth}", 
@@ -161,7 +161,7 @@ def _run_braintree_vbv_sync(cc: str, mes: str, ano: str, cvv: str, proxy_str: Op
     if not auth:
         return False, "Auth failed after 5 retries"
         
-    token, last4, brand_code = tokenize_card(session, auth, cc, mes, ano, u)
+    token, last4, brand_code = tokenize_card(session, auth, cc, mes, ano, cvv, u)
     if not token:
         return False, "Tokenization failed"
         

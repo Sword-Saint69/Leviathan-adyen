@@ -125,6 +125,8 @@ def _run_stripe_charge_sync(cc: str, mes: str, ano: str, cvv: str, proxy_str: Op
             timeout=25
         )
         if resp1.status_code != 200:
+            if "wp_die" in resp1.text or "wp-die" in resp1.text:
+                return False, "WordPress security check failed (wp_die)"
             return False, f"Failed to get client secret: {resp1.text[:100]}"
             
         client_secret = resp1.json().get('data', {}).get('clientSecret')
@@ -132,6 +134,8 @@ def _run_stripe_charge_sync(cc: str, mes: str, ano: str, cvv: str, proxy_str: Op
             return False, "Failed to extract clientSecret from givewp response"
         
         pi_id = client_secret.split('_secret')[0]
+    except requests.exceptions.RequestException:
+        return False, "Connection error or timeout"
     except Exception as e:
         return False, f"GiveWP donation route error: {str(e)}"
         

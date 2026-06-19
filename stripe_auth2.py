@@ -156,6 +156,8 @@ def _run_stripe_auth_epicalarc(cc: str, mes: str, ano: str, cvv: str, proxy_str:
                 return True, "CARD_APPROVED"
             return False, res_text[:100]
             
+    except requests.exceptions.RequestException:
+        return False, "Connection error or timeout"
     except Exception as e:
         return False, f"Epicalarc check failed: {str(e)}"
 

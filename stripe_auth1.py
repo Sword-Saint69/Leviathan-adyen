@@ -115,6 +115,12 @@ def _run_stripe_auth_sync(cc: str, mes: str, ano: str, cvv: str, proxy_str: Opti
             timeout=15
         )
         if resp2.status_code not in (200, 201):
+            try:
+                err_data = resp2.json()
+                if "message" in err_data:
+                    return False, err_data["message"]
+            except Exception:
+                pass
             return False, f"Setup Intent creation failed: {resp2.text[:100]}"
             
         data_si = resp2.json()

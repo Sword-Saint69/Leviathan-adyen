@@ -288,6 +288,8 @@
                         <option value="adyen" selected>Adyen Leviathan</option>
                         <option value="stripe">Stripe Setup</option>
                         <option value="stripe1">Stripe 1.00 USD</option>
+                        <option value="braintree">Braintree Auth</option>
+                        <option value="paypal">PayPal 5.00 USD</option>
                     </select>
                 </div>
 
@@ -369,7 +371,7 @@
             const gateway = document.getElementById('gateway-select').value;
             const label = document.getElementById('approved-label');
             const btn = document.getElementById('btn-download-approved');
-            if (gateway === 'stripe1') {
+            if (gateway === 'stripe1' || gateway === 'paypal') {
                 label.textContent = 'Charged';
                 btn.textContent = 'Download Charged';
             } else {
@@ -462,7 +464,7 @@
                     const proxy = proxies.length > 0 ? proxies[idx % proxies.length] : null;
 
                     try {
-                        const endpoint = gateway === 'stripe1' ? '/stripe1' : (gateway === 'stripe' ? '/stripe' : '/adyen');
+                        const endpoint = '/' + gateway;
                         const response = await fetch(endpoint, {
                             method: 'POST',
                             headers: {
@@ -487,7 +489,7 @@
                                 approvedCount++;
                                 approvedList.push(card);
                                 document.getElementById('stat-approved').textContent = approvedCount;
-                                statusText = gateway === 'stripe1' ? `<span style="color: var(--success); font-weight: bold;">CHARGED</span>` : `<span style="color: var(--success); font-weight: bold;">APPROVED</span>`;
+                                statusText = (gateway === 'stripe1' || gateway === 'paypal') ? `<span style="color: var(--success); font-weight: bold;">CHARGED</span>` : `<span style="color: var(--success); font-weight: bold;">APPROVED</span>`;
                             } else {
                                 declinedCount++;
                                 declinedList.push(card);

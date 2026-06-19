@@ -297,6 +297,62 @@ curl -X POST "http://localhost:5000/stripe1" \
   }'</pre>
             </div>
 
+            <!-- BRAINTREE GET Block -->
+            <div class="docs-block" style="border-top: 1px solid var(--card-border); padding-top: 2rem;">
+                <h3>Braintree Auth - HTTP GET Request</h3>
+                <div>
+                    <span class="badge badge-get">GET</span>
+                    <span class="endpoint-url">/braintree</span>
+                </div>
+                <pre>
+curl "http://localhost:5000/braintree?cc=4802138766607576|12|2029|499&key=API_KEY&proxy=REQUIRED_PROXY"</pre>
+            </div>
+
+            <!-- BRAINTREE POST Block -->
+            <div class="docs-block">
+                <h3>Braintree Auth - HTTP POST Request</h3>
+                <div>
+                    <span class="badge badge-post">POST</span>
+                    <span class="endpoint-url">/braintree</span>
+                </div>
+                <pre>
+curl -X POST "http://localhost:5000/braintree" \
+  -H "Content-Type: application/json" \
+  -d '{
+    <span class="json-key">"cc"</span>: <span class="json-string">"4802138766607576|12|2029|499"</span>,
+    <span class="json-key">"key"</span>: <span class="json-string">"API_KEY"</span>,
+    <span class="json-key">"proxy"</span>: <span class="json-string">"REQUIRED_PROXY_STRING"</span>
+  }'</pre>
+            </div>
+
+            <!-- PAYPAL GET Block -->
+            <div class="docs-block" style="border-top: 1px solid var(--card-border); padding-top: 2rem;">
+                <h3>PayPal 5.00 USD - HTTP GET Request</h3>
+                <div>
+                    <span class="badge badge-get">GET</span>
+                    <span class="endpoint-url">/paypal</span>
+                </div>
+                <pre>
+curl "http://localhost:5000/paypal?cc=4802138766607576|12|2029|499&key=API_KEY&proxy=REQUIRED_PROXY"</pre>
+            </div>
+
+            <!-- PAYPAL POST Block -->
+            <div class="docs-block">
+                <h3>PayPal 5.00 USD - HTTP POST Request</h3>
+                <div>
+                    <span class="badge badge-post">POST</span>
+                    <span class="endpoint-url">/paypal</span>
+                </div>
+                <pre>
+curl -X POST "http://localhost:5000/paypal" \
+  -H "Content-Type: application/json" \
+  -d '{
+    <span class="json-key">"cc"</span>: <span class="json-string">"4802138766607576|12|2029|499"</span>,
+    <span class="json-key">"key"</span>: <span class="json-string">"API_KEY"</span>,
+    <span class="json-key">"proxy"</span>: <span class="json-string">"REQUIRED_PROXY_STRING"</span>
+  }'</pre>
+            </div>
+
             <div class="dashboard-link">
                 <a href="/adyen/checker">Go to Checker Dashboard UI &rarr;</a>
             </div>

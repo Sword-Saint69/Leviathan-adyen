@@ -169,6 +169,11 @@
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
 
+        select option {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+        }
+
         textarea {
             resize: vertical;
             min-height: 120px;
@@ -286,10 +291,20 @@
                     <label for="gateway-select">Select Gateway</label>
                     <select id="gateway-select" onchange="onGatewayChange()">
                         <option value="adyen" selected>Adyen Leviathan</option>
-                        <option value="stripe">Stripe Setup</option>
-                        <option value="stripe1">Stripe 1.00 USD</option>
+                        <option value="stripe">Stripe Setup (Auth)</option>
+                        <option value="stripe2">Stripe Epicalarc (Auth)</option>
+                        <option value="stripe3">Stripe Peppermint (Auth)</option>
+                        <option value="stripe4">Stripe Nas (Auth)</option>
+                        <option value="stripe1">Stripe Charge (1.00 USD)</option>
+                        <option value="stripe_charge2">Stripe Charge 2 (1.00 USD)</option>
                         <option value="braintree">Braintree Auth</option>
+                        <option value="vbv">Braintree VBV</option>
                         <option value="paypal">PayPal 5.00 USD</option>
+                        <option value="paypal2">PayPal 1.00 USD</option>
+                        <option value="paypal3">PayPal 1.00 USD Ql</option>
+                        <option value="paypal4">PayPal Cors 7.00 USD</option>
+                        <option value="wallawalla">Wallawalla Auth</option>
+                        <option value="authorizenet">Authorize.Net Auth</option>
                     </select>
                 </div>
 
@@ -371,7 +386,8 @@
             const gateway = document.getElementById('gateway-select').value;
             const label = document.getElementById('approved-label');
             const btn = document.getElementById('btn-download-approved');
-            if (gateway === 'stripe1' || gateway === 'paypal') {
+            const isCharge = ['stripe1', 'stripe_charge2', 'paypal', 'paypal2', 'paypal3', 'paypal4'].includes(gateway);
+            if (isCharge) {
                 label.textContent = 'Charged';
                 btn.textContent = 'Download Charged';
             } else {
@@ -489,7 +505,8 @@
                                 approvedCount++;
                                 approvedList.push(card);
                                 document.getElementById('stat-approved').textContent = approvedCount;
-                                statusText = (gateway === 'stripe1' || gateway === 'paypal') ? `<span style="color: var(--success); font-weight: bold;">CHARGED</span>` : `<span style="color: var(--success); font-weight: bold;">APPROVED</span>`;
+                                const isCharge = ['stripe1', 'stripe_charge2', 'paypal', 'paypal2', 'paypal3', 'paypal4'].includes(gateway);
+                                statusText = isCharge ? `<span style="color: var(--success); font-weight: bold;">CHARGED</span>` : `<span style="color: var(--success); font-weight: bold;">APPROVED</span>`;
                             } else {
                                 declinedCount++;
                                 declinedList.push(card);
